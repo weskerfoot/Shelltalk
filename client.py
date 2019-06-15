@@ -3,6 +3,7 @@
 import socket
 import argparse
 
+from base64 import b64encode, b64decode
 from contextlib import closing
 from json import loads
 
@@ -19,7 +20,7 @@ def read_log(pid):
             if b"\n" in chunk:
                 break
 
-    return loads(b"".join(buf).decode("utf-8"))
+    return [b64decode(l) for l in loads(b"".join(buf).decode("utf-8"))]
 
 def spawn(pid):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
@@ -29,7 +30,8 @@ def spawn(pid):
 def write(pid, msg):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
         s.connect("/tmp/shelltalk.sock")
-        s.send(("write {0} {1}\n".format(pid, msg)).encode("utf-8"))
+        message = b64encode(msg.encode("utf-8"))
+        s.send(("write {0} {1}\n".format(pid, message.decode("utf-8"))).encode("utf-8"))
 
 parser = argparse.ArgumentParser()
 
@@ -51,10 +53,11 @@ parser.add_argument("-R",
 args = parser.parse_args()
 
 if args.spawn:
-    print(spawn(*args.spawn))
+    spawn(*args.spawn)
 
 if args.write:
-    print(write(*args.write))
+    write(*args.write)
 
 if args.read:
-    print(read_log(*args.read))
+    for line in read_log(*args.read):
+        print(line)
