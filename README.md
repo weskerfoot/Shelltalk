@@ -16,8 +16,27 @@ with other services running on the machine (you specify a path, not a port). As
 well, they are more robust than FIFOs because they can handle multiple
 concurrent connections easily.
 
-At some point in the future, part of this may be rewritten in C, Pony, or
+See [here](https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html#tag_16_685) for a description of why FIFOs are not good for this.
+
+## Caveats/Ideas
+
+1. This tool works by modifying your `PROMPT_COMMAND` variable in Bash, as well as
+using the `disown` command to immediately detach the process that logs the last
+command. Hence, this will probably only work in Bash, and I have not (and have
+no plans to) make it work in zsh or any other shells at the moment. In
+principle, it is probably not terribly difficult to do the same thing though.
+
+2. The `client.py` module is probably very inefficient, as is the way it
+serializes and deserializes data as JSON. This will most likely change to some
+binary format.
+
+3. It will most likely try to integrate with `journald` in some way further down
+the line for persistence.
+
+4. At some point in the future, part of this may be rewritten in C, Pony, or
 Erlang, or a combination of all three.
+
+## Usage
 
 1. Compile `server.rkt` with `raco exe server.rkt`
 2. Run `./server`
