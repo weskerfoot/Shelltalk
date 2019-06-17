@@ -33,7 +33,6 @@
 ;; Message handling functions
 
 (define (write-to entries out)
-  (displayln entries)
   (with-handlers ([exn:fail? (const '())])
     (write-json entries out)
     (display "\n" out)))
@@ -95,14 +94,10 @@
         (handle-connection in out)]
 
        [(list "read" pid)
-        (displayln "got read")
         (thread-send message-handler (list 'read pid out))
         (handle-connection in out)]
 
        [(list "write" pid message)
-        (displayln "got write")
-        (displayln pid)
-        (displayln message)
         (thread-send message-handler (list 'log pid message))
         (handle-connection in out)]
 
