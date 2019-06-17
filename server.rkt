@@ -69,8 +69,13 @@
      (handle-messages
       (hash-remove loggers pid))]
 
+    [(cons 'list out)
+     (displayln (hash-keys loggers))
+     (write-to
+       (hash-keys loggers) out)
+     (handle-messages loggers)]
+
     [(list 'read pid out)
-     (displayln "got read message")
      ; Reads all the logs for a given pid
      (logger-send loggers pid (cons 'read out))
      (handle-messages loggers)]))
@@ -105,6 +110,9 @@
         (displayln (format "~a closed" pid))
         (thread-send message-handler (cons 'kill pid))
         (close-socket in out)]
+
+       [(list "list")
+        (thread-send message-handler (cons 'list out))]
 
        [other
         (displayln other)
